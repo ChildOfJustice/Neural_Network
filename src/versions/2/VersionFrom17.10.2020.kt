@@ -1,3 +1,10 @@
+package versions
+
+import java.io.File
+import java.io.InputStreamReader
+import java.io.StringReader
+import java.lang.StringBuilder
+
 
 //Absolute Values
 const val I_neuronsCount = 2
@@ -47,10 +54,19 @@ fun main(){
     println("Creating neurons...")
     init()
 
-    println("Teaching...")
-    for (i in 0..90000) {
-        teach()
+    val createAll = true
+
+    if(createAll) {
+        println("Teaching...")
+        for (i in 0..90000) {
+            teach()
+        }
+        saveNeuronWeights("./src/main/resources/myNeuralNetwork")
+    } else {
+        loadNeuronWeights("./src/main/resources/myNeuralNetwork")
+        saveNeuronWeights("./src/main/resources/myNeuralNetwork")
     }
+
     println("/////////////////////////////////////////")
     for (i in 0 until 4) {
         println("input: ${inputTable[i]}")
@@ -175,32 +191,130 @@ fun analyze() = when{
 
 fun saveNeuronWeights(saveFileName: String){
     //out
-    if (printInfo)println("Saving output ws to ${saveFileName}")
-    for (neuron in outPutNeurons){
-        for (w in 0 until neuronsPerLayer){
-            neuron.weights[w]
+    val writer = File(saveFileName).writer()
+    println("Saving rest layers ws to ${saveFileName}")
+    for (neuron in allLayers[0]) {
+        for (w in 0 until I_neuronsCount) {
+            writer.write(neuron.weights[w].toString() + " ")
         }
-        neuron.weights[neuron.weights.size-1] = neuron.weights[neuron.weights.size-1] + K* neuron.error*neuron.value*(1-neuron.value)
+        writer.write("[" + neuron.value.toString() + "]")
+        writer.write("| ")
+    }
+    writer.write("\n")
+    for (layer in 0 until layersCount){
+        for (neuron in allLayers[layer]) {
+            for (w in 0 until neuronsPerLayer) {
+                writer.write(neuron.weights[w].toString() + " ")
+            }
+            writer.write("[" + neuron.value.toString() + "]")
+            writer.write("| ")
+        }
+        writer.write("\n")
     }
 
-    if (printInfo)println("Rewriting layers' ws")
-    for (layer in layersCount-1 downTo 0){
-        if (layer != 0) {
-            for (neuron in allLayers[layer]) {
-                for (w in 0 until neuronsPerLayer) {
-                    neuron.weights[w] = neuron.weights[w] + K * neuron.error * neuron.value * (1 - neuron.value) * allLayers[layer - 1][w].value
+    println("Saving output ws to ${saveFileName}")
+    for (neuron in outPutNeurons){
+        for (w in 0 until neuronsPerLayer){
+            writer.write(neuron.weights[w].toString() + " ")
+        }
+        writer.write("[" + neuron.value.toString() + "]")
+        writer.write("| ")
+    }
+    writer.write("\n")
+    //writer.flush()
+    writer.close()
+}
+
+fun getWeightFromLine(line: String, neuronsInLayer: Int, weightsForEachNeuron: Int): ArrayList<ArrayList<Double>> {
+    var allWeights = ArrayList<ArrayList<Double>>()
+
+    val builder = StringBuilder()
+    var index = 0
+    var value = line[index]
+    //println(line)
+    for (i in 0 until neuronsInLayer) {
+        allWeights.add(ArrayList())
+        for (j in 0 until weightsForEachNeuron + 1) {
+
+            while (true) {
+
+                //println("VALUE IS " + value)
+
+                if(value == '[' || value == ']' || value == '|'){
+                    index++
+                    if (index >= line.length) {
+                        index = 0
+                        builder.clear()
+                        break
+                    }
+                    value = line[index]
+                    continue
                 }
-                neuron.weights[neuron.weights.size - 1] =
-                    neuron.weights[neuron.weights.size - 1] + K * neuron.error * neuron.value * (1 - neuron.value)
-            }
-        } else {
-            for (neuron in allLayers[layer]) {
-                for (w in 0 until I_neuronsCount) {
-                   // neuron.weights[w] = neuron.weights[w] + K * neuron.error * neuron.value * (1 - neuron.value) * inputTable[tableIndex][w]
+
+                if(value == ' '){
+                    println("THE BUILDER IS " + builder.toString())
+                    if(builder.toString().equals(""))
+                        break
+                    allWeights[i].add(builder.toString().toDouble())
+                    builder.clear()
+                    index++
+                    if (index >= line.length) {
+                        index = 0
+                        break
+                    }
+                    value = line[index]
+                    break
                 }
-                neuron.weights[neuron.weights.size - 1] =
-                    neuron.weights[neuron.weights.size - 1] + K * neuron.error * neuron.value * (1 - neuron.value)
+
+                builder.append(value)
+                index++
+                if (index >= line.length) {
+                    allWeights[i].add(builder.toString().toDouble())
+                    builder.clear()
+                    index = 0
+                    break
+                }
+                value = line[index]
             }
         }
     }
+
+    return allWeights
+}
+
+fun loadNeuronWeights(loadFileName: String){
+    //in
+    val reader = File(loadFileName).bufferedReader()
+    println("Loading rest layers ws from ${loadFileName}")
+    var line = reader.readLine()
+    var weightsForInputNeurons = getWeightFromLine(line, neuronsPerLayer, I_neuronsCount)
+    for (neuronNumber in 0 until neuronsPerLayer) {
+        for (w in 0 until I_neuronsCount) {
+            allLayers[0][neuronNumber].weights[w] = weightsForInputNeurons[neuronNumber][w]
+        }
+        allLayers[0][neuronNumber].value = weightsForInputNeurons[neuronNumber][I_neuronsCount]
+    }
+
+    for (layer in 0 until layersCount){
+        line = reader.readLine()
+        weightsForInputNeurons = getWeightFromLine(line, neuronsPerLayer, neuronsPerLayer)
+        for (neuronNumber in 0 until neuronsPerLayer) {
+            for (w in 0 until neuronsPerLayer) {
+                allLayers[layer][neuronNumber].weights[w] = weightsForInputNeurons[neuronNumber][w]
+            }
+            allLayers[layer][neuronNumber].value = weightsForInputNeurons[neuronNumber][neuronsPerLayer]
+        }
+    }
+
+    line = reader.readLine()
+    weightsForInputNeurons = getWeightFromLine(line, O_neuronsCount, neuronsPerLayer)
+    println("Saving output ws to ${loadFileName}")
+    for (neuronNumber in 0 until O_neuronsCount){
+        for (w in 0 until neuronsPerLayer){
+            outPutNeurons[neuronNumber].weights[w] = weightsForInputNeurons[neuronNumber][w]
+        }
+        outPutNeurons[neuronNumber].value = weightsForInputNeurons[neuronNumber][neuronsPerLayer]
+    }
+    //reader.flush()
+    reader.close()
 }

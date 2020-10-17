@@ -47,16 +47,16 @@ fun init(){
 fun main(){
     init()
 
-//    for (i in 0..9000) {
-//        teach()
-//    }
-//    println("/////////////////////////////////////////")
-//    direct(1)
-//    println(outPutNeurons[0].value)
-//    //println("!!!!!!!!!!!!!!! ${analyze()}")
-//    direct(0)
-//    //println("!!!!!!!!!!!!!!! ${analyze()}")
-//    println(outPutNeurons[0].value)
+    for (i in 0..9000) {
+        teach()
+    }
+    println("/////////////////////////////////////////")
+    direct(1)
+    println(outPutNeurons[0].value)
+    //println("!!!!!!!!!!!!!!! ${analyze()}")
+    direct(0)
+    //println("!!!!!!!!!!!!!!! ${analyze()}")
+    println(outPutNeurons[0].value)
 }
 
 fun teach(){
