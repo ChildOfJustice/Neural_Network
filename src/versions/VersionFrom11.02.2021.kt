@@ -10,7 +10,10 @@ class Version3 {
     val layersCount = 2
     val neuronsPerLayer = 3
 
-    val printInfo = false
+    var epochsToTeach = 900
+
+    var printInfo = false
+    var loadWeightsFromFile = true
     val savedNeuronValuesFilePath = "./src/resources/myNeuralNetwork"
 
     val K = 0.7
@@ -53,16 +56,14 @@ class Version3 {
         println("Creating neurons...")
         init()
 
-        val createAll = true
-
-        if (createAll) {
+        if (loadWeightsFromFile) {
+            loadNeuronWeights(savedNeuronValuesFilePath)
+            //saveNeuronWeights(savedNeuronValuesFilePath)
+        } else {
             println("Teaching...")
-            for (i in 0..900) {
+            for (i in 0..epochsToTeach) {
                 teach()
             }
-            saveNeuronWeights(savedNeuronValuesFilePath)
-        } else {
-            loadNeuronWeights(savedNeuronValuesFilePath)
             saveNeuronWeights(savedNeuronValuesFilePath)
         }
 
@@ -255,7 +256,7 @@ class Version3 {
                     }
 
                     if (value == ' ') {
-                        println("THE BUILDER IS " + builder.toString())
+                        //println("THE BUILDER IS " + builder.toString())
                         if (builder.toString().equals(""))
                             break
                         allWeights[i].add(builder.toString().toDouble())
