@@ -57,6 +57,16 @@ class Version3 {
     fun main() {
         println("Creating neurons...")
         init()
+        println("////Without learning:")
+        for (i in 0 until 4) {
+            println("input: ${inputTable[i]}")
+            direct(i)
+            println("Right answer: ${outputTable[i]}")
+            println("Neuron network answer: ${outPutNeurons[0].value}")
+            println("Analyzed answer: ${analyze()}")
+            println("////////////////////")
+        }
+
 
         if (loadWeightsFromFile) {
             loadNeuronWeights(savedNeuronValuesFilePath)
