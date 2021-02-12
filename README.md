@@ -16,7 +16,7 @@ One output neuron for the **c** result of the operation **a** XOR **b** = **c** 
 2. Choose *loadWeightsFromFile = `true`* if you want to load taught neural network from the file `src/resources/myNeuralNetwork`
 * Else specify amount of epochs to teach with *epochsToTeach* property.
 Also it will update current weights saved in the src/resources/myNeuralNetwork file.
-#####To configure network hyperparameters you can adjust them inside of the version class:
+##### To configure network hyperparameters you can adjust them inside of the version class:
 * val I_neuronsCount = 2    `Input neurons quantity`
 * val O_neuronsCount = 1    `Output neurons quantity`
 * val layersCount = 2       `Hidden layers quantity`
