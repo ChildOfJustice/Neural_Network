@@ -4,11 +4,13 @@ import java.io.File
 import java.lang.StringBuilder
 
 class Version3 {
-    //Absolute Values
+    //Hyperparameters
     val I_neuronsCount = 2
     val O_neuronsCount = 1
     val layersCount = 2
     val neuronsPerLayer = 3
+
+    val K = 0.7
 
     var epochsToTeach = 900
 
@@ -16,7 +18,7 @@ class Version3 {
     var loadWeightsFromFile = true
     val savedNeuronValuesFilePath = "./src/resources/myNeuralNetwork"
 
-    val K = 0.7
+
 
     var allLayers: Array<Array<Neuron>> = emptyArray()
 
